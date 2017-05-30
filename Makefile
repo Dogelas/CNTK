@@ -1387,6 +1387,7 @@ JDK_INCLUDE_PATH+=$(JDK_INCLUDE_PATH)/linux
 JAVA_LIB=$(LIBDIR)/libCntk.Core.JavaBinding-$(CNTK_COMPONENT_VERSION).so
 JAVA_DEP_SO_NAMES:=$(CNTKMATH_LIB) $(PERF_PROFILER_LIB) $(CNTKLIBRARY_LIB) $(JAVA_LIB)
 JAVA_DEP_SO_NAMES:=$(JAVA_DEP_SO_NAMES:$(LIBDIR)/%=%)
+JAVA_DEP_SO_NAMES_GPU:=libcublas64_80.so libcudart64_80.so libcudnn64_5.so libcurand64_80.so libcusparse64_80.so libnvml.so
 
 .PHONY: java
 java: $(JAVA_LIBS)
@@ -1406,6 +1407,12 @@ java: $(JAVA_LIBS)
 	    cp -p $(LIBDIR)/$$so $(JAVA_SWIG_DIR)/com/microsoft/CNTK/lib/linux; \
 	    echo $$so >> $(JAVA_SWIG_DIR)/com/microsoft/CNTK/lib/linux/NATIVE_MANIFEST; \
 	done
+	ifdef CUDA_PATH
+	for so in $(JAVA_DEP_SO_NAMES_GPU); do \
+	    cp -p $(CUDA_PATH)/lib64/$$so $(JAVA_SWIG_DIR)/com/microsoft/CNTK/lib/linux; \
+	    echo $$so >> $(JAVA_SWIG_DIR)/com/microsoft/CNTK/lib/linux/NATIVE_MANIFEST; \
+	done
+	endif
 	cp -p $(JAVA_SWIG_DIR)/CNTKNativeUtils.java $(JAVA_SWIG_DIR)/com/microsoft/CNTK/CNTKNativeUtils.java
 	$(JDK_BIN_PATH)/javac $(GENERATED_JAVA_DIR)/*.java
 	mkdir -p $(LIBDIR)/java
